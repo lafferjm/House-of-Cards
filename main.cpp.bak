@@ -1,0 +1,147 @@
+#include "classes/button.h"
+#include "classes/card.h"
+#include "classes/game.h"
+#include "classes/chip.h"
+#include "classes/blackjack.h"
+#include "classes/inbetween.h"
+#include "classes/poker.h"
+#include "classes/slots.h"
+#include <SDL/SDL.h>
+#include <SDL/SDL_ttf.h>
+#include <iostream>
+
+using namespace std;
+
+int main(int argc, char** argv) {
+
+	//I need to figure out if I need to redraw the menu
+	bool redraw = true;
+	
+	//We need to initialize SDL and the screen before we do
+	//Anything else
+	SDL_Init(SDL_INIT_EVERYTHING);
+	SDL_Surface* screen = NULL;
+	screen = SDL_SetVideoMode(640,480,32,SDL_SWSURFACE);
+	SDL_WM_SetCaption("House Of Cards", NULL);
+
+	//We need to initialize a few variables for handling the menu events
+	bool is_running = true;
+	int mouse_x = 0;
+	int mouse_y = 0;
+	SDL_Event event;
+
+	//Lets create our chip object so we can display the total on the main screen
+	Chip chips;
+	string chip_string = "Chip Count: " + chips.get_chip_string();
+
+	//Now we need to get our variables setup for drawing the menu
+	TTF_Init();	
+	TTF_Font *font = NULL;
+	SDL_Color text_color = {0,0,0};
+	//We need to supply a background color to the font for it to be antialiased	
+	SDL_Color back_color = {0x00,0x84,0x00};
+	SDL_Surface* title_surface = NULL;
+	SDL_Surface* chip_surface = NULL;	
+	//Here i set the font for the title text
+	font = TTF_OpenFont("resources/fonts/FreeSerif.ttf",80);
+	title_surface = TTF_RenderText_Shaded(font,"House Of Cards",text_color,back_color);
+
+	//So that I do not need to create a new object, I am just going to reuse font
+	font = TTF_OpenFont("resources/fonts/FreeSerif.ttf",24);		
+	chip_surface = TTF_RenderText_Shaded(font,chip_string.c_str(), text_color,back_color);
+	
+	//We need a rectangle so that we know where to write the title text 
+	SDL_Rect title_position;
+	title_position.x = 50;
+	title_position.y = 25;
+
+	//We need another rectangle to know where to write the chip text
+	SDL_Rect chip_position;
+	chip_position.x = 0;
+	chip_position.y = 450;
+
+	//There will be four buttons on the menu so we need an object for each one
+	Button blackjack_button(25,200,200,50);
+	Button poker_button(400,200,200,50);
+	Button inbetween_button(25,325,200,50);
+	Button slots_button(400,325,200,50);
+	
+	//Now we need to apply the image to each button
+	blackjack_button.apply_image("resources/images/menu/blackjack_button.png");
+	poker_button.apply_image("resources/images/menu/poker_button.png");
+	inbetween_button.apply_image("resources/images/menu/inbetween_button.png");
+	slots_button.apply_image("resources/images/menu/slots_button.png");
+
+	while(is_running) {
+		
+		if(redraw) {
+			//Need to change our caption back to what it needs to be
+			SDL_WM_SetCaption("House Of Cards",NULL);
+			
+			//Fill the background with green	
+			SDL_FillRect(screen,&screen->clip_rect,0x008400);
+	
+			//Write the title to the screen	
+			SDL_BlitSurface(title_surface,NULL,screen,&title_position);
+
+			//Write the chip count to the screen
+			chip_string = "Chip Count: " + chips.get_chip_string();	
+			chip_surface = TTF_RenderText_Shaded(font,chip_string.c_str(), text_color,back_color);
+			SDL_BlitSurface(chip_surface,NULL,screen,&chip_position);
+		
+			//Show the buttons	
+			blackjack_button.show(screen);
+			poker_button.show(screen);
+			inbetween_button.show(screen);
+			slots_button.show(screen);
+			
+			//Update the screen	
+			SDL_Flip(screen);
+			
+			redraw = false;
+		}
+					
+		while(SDL_PollEvent(&event)) {
+	
+			if(event.type == SDL_QUIT)
+				is_running = false;
+
+			if(event.type == SDL_MOUSEBUTTONDOWN) {
+				if(event.button.button == SDL_BUTTON_LEFT) {
+					mouse_x = event.button.x;
+					mouse_y = event.button.y;
+						
+					if(blackjack_button.is_clicked(mouse_x,mouse_y)) {
+						chips.save_chips();
+						Blackjack blackjack(screen);	
+						blackjack.run();
+						redraw = true;
+					}
+					if(poker_button.is_clicked(mouse_x,mouse_y)) {
+						chips.save_chips();	
+						Poker poker(screen);	
+						poker.run();
+						redraw = true;
+					}
+					if(inbetween_button.is_clicked(mouse_x,mouse_y)) {
+						chips.save_chips();	
+						Inbetween inbetween(screen);	
+						inbetween.run();
+						redraw = true;
+					}
+					if(slots_button.is_clicked(mouse_x,mouse_y)) {
+						chips.save_chips();	
+						Slots slots(screen);	
+						slots.run();
+						redraw = true;
+					}
+				}
+				
+			}
+
+		}
+
+	}
+
+	SDL_Quit();
+}	
