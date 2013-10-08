@@ -9,9 +9,13 @@ in-between, and slots.  In the applications current state, only two of these gam
 Requirements
 ------------
 +SDL_1.2
+
 +SDL_ttf
+
 +SDL_image
+
 +A C compiler to build the binary
+
 +Make
 
 Building the binary
