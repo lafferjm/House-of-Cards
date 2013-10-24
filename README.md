@@ -21,5 +21,5 @@ To build the binary just use type make
 Running the game
 ----------------
 To run the game navigate to the games directory, and run the Run executable.  Rules for the two games can be found at the following sites:
---In-between: http://en.wikipedia.org/wiki/Acey_Deucey_%28card_game%29
---Video Poker: http://en.wikipedia.org/wiki/Video_poker#Jacks_or_Better
+* In-between: http://en.wikipedia.org/wiki/Acey_Deucey_%28card_game%29
+* Video Poker: http://en.wikipedia.org/wiki/Video_poker#Jacks_or_Better
